@@ -1,12 +1,7 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Gerador de PDF mínimo, sem bibliotecas externas.
- *  - Fontes padrão do PDF (Helvetica e Helvetica-Bold), codificação WinAnsi (acentos do português).
- *  - Coordenadas com origem no canto superior esquerdo, em pontos (1 pt = 1/72 pol).
- *  - Logo opcional em PNG RGB de 8 bits, sem entrelaçamento (assets/img/logo_pdf.png).
- */
+/* gera os PDFs */
 final class SimplePdf
 {
     public float $w;
@@ -14,8 +9,8 @@ final class SimplePdf
 
     private array $pages = [];
     private string $cur = '';
-    private ?array $img = null;     // [w, h, idat]
-    private array $cw = [];         // largura (em 1/1000 em) por byte, Helvetica
+    private ?array $img = null;     
+    private array $cw = [];         
     private string $title;
 
     public function __construct(string $title = 'Documento', bool $landscape = true)
@@ -25,14 +20,14 @@ final class SimplePdf
         $this->buildWidths();
     }
 
-    /* ---------- Página ---------- */
+    /* página */
     public function addPage(): void
     {
         if ($this->cur !== '' || $this->pages) $this->pages[] = $this->cur;
         $this->cur = '';
     }
 
-    /* ---------- Desenho ---------- */
+    /* desenho */
     private static function rgb(string $hex): string
     {
         $hex = ltrim($hex, '#');
@@ -53,7 +48,7 @@ final class SimplePdf
         $this->cur .= self::rgb($hex) . " RG\n" . sprintf('%.2F w %.2F %.2F m %.2F %.2F l S', $lw, $x1, $this->h - $y1, $x2, $this->h - $y2) . "\n";
     }
 
-    /** $y é a linha de base do texto, medida a partir do topo. */
+    
     public function text(float $x, float $y, string $s, float $size = 10, bool $bold = false, string $hex = '#000000'): void
     {
         $this->cur .= sprintf("BT %s rg /%s %.2F Tf %.2F %.2F Td (%s) Tj ET\n",
@@ -74,7 +69,7 @@ final class SimplePdf
             elseif ($type === 'IEND') break;
             $pos += 12 + $len;
         }
-        // Somente PNG RGB, 8 bits, sem entrelaçamento (repassado ao PDF sem recodificar).
+        
         if (!$meta || $meta['bd'] !== 8 || $meta['ct'] !== 2 || $meta['il'] !== 0 || $idat === '') return false;
         $this->img = [$meta['w'], $meta['h'], $idat];
         return true;
@@ -86,16 +81,16 @@ final class SimplePdf
         $this->cur .= sprintf("q %.2F 0 0 %.2F %.2F %.2F cm /Im1 Do Q\n", $w, $h, $x, $this->h - $y - $h);
     }
 
-    /* ---------- Texto: medição e quebra de linha ---------- */
+    /* texto */
     public function textWidth(string $s, float $size, bool $bold = false): float
     {
         $s = $this->toWin($s);
         $t = 0;
         for ($i = 0, $n = strlen($s); $i < $n; $i++) $t += $this->cw[ord($s[$i])] ?? 556;
-        return $t * $size / 1000 * ($bold ? 1.08 : 1.0) * 1.02; // margem de segurança
+        return $t * $size / 1000 * ($bold ? 1.08 : 1.0) * 1.02; 
     }
 
-    /** Quebra o texto em linhas que cabem em $width (quebra palavras muito longas). */
+    /* quebra o texto de linhas ou palavras muito longas */
     public function wrap(string $s, float $width, float $size, bool $bold = false): array
     {
         $lines = [];
@@ -118,7 +113,7 @@ final class SimplePdf
         return $lines;
     }
 
-    /* ---------- Saída ---------- */
+    /* saída */
     /** @param callable|null $footer function(SimplePdf $pdf, int $page, int $total): void */
     public function output(?callable $footer = null): string
     {
@@ -134,12 +129,12 @@ final class SimplePdf
             $this->cur = '';
         }
 
-        $objs = [];                                   // índice = número do objeto - 1
+        $objs = []; // índice = número do objeto-1
         $objs[0] = '<< /Type /Catalog /Pages 2 0 R >>';
-        $objs[1] = '';                                // preenchido depois (Pages)
+        $objs[1] = '';    
         $objs[2] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
         $objs[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
-        $objs[4] = '<< >>';                           // objeto 5: imagem (ou vazio, mantendo a numeração)
+        $objs[4] = '<< >>';   
         $imgRef = '';
         if ($this->img) {
             [$iw, $ih, $idat] = $this->img;
@@ -177,7 +172,7 @@ final class SimplePdf
         return $pdf;
     }
 
-    /* ---------- Auxiliares ---------- */
+    /* auxiliar */
     private function esc(string $s): string
     {
         return str_replace(['\\', '(', ')', "\r"], ['\\\\', '\\(', '\\)', ''], $s);
@@ -188,7 +183,7 @@ final class SimplePdf
         return preg_replace('/[^\x20-\x7E]/', '', strtr($s, ['á'=>'a','à'=>'a','ã'=>'a','â'=>'a','é'=>'e','ê'=>'e','í'=>'i','ó'=>'o','õ'=>'o','ô'=>'o','ú'=>'u','ç'=>'c','Á'=>'A','É'=>'E','Í'=>'I','Ó'=>'O','Ú'=>'U','Ç'=>'C'])) ?? '';
     }
 
-    /** UTF-8 -> Windows-1252 (o que a fonte WinAnsi espera). */
+    /** UTF-8 - Windows-1252 */
     private function toWin(string $s): string
     {
         if (function_exists('mb_convert_encoding')) return mb_convert_encoding($s, 'Windows-1252', 'UTF-8');
@@ -202,7 +197,7 @@ final class SimplePdf
         return function_exists('mb_substr') ? mb_substr($s, $a, $l) : ($l === null ? substr($s, $a) : substr($s, $a, $l));
     }
 
-    /** Larguras da Helvetica (métrica AFM padrão); acentuados seguem a letra-base. */
+    
     private function buildWidths(): void
     {
         $ascii = [32=>278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,
@@ -219,10 +214,8 @@ final class SimplePdf
     }
 }
 
-/**
- * Monta o relatório diário de fretes em PDF.
- * Colunas: Nº, data, transportador, origem, destino, produtos e status.
- */
+/* faz o relatório diário de fretes em PDF */
+/* colunas: nº, data, transportador, origem, destino, produtos e status da entrega */
 function build_daily_report_pdf(array $rows, string $date, string $logoPath): string
 {
     $pdf = new SimplePdf('OBSIDIAN EXPRESS - Relatorio diario de fretes ' . $date, true);

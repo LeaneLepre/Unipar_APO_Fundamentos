@@ -1,27 +1,16 @@
-<?php
+<?php /* funções usadas */
 declare(strict_types=1);
-
-/**
- * Funções utilitárias do OBSIDIAN EXPRESS.
- * Deve ser carregado ANTES de includes/header.php, para que os formulários
- * sejam processados (e os redirecionamentos feitos) antes de qualquer HTML ser enviado.
- */
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
 const APP_NAME = 'OBSIDIAN EXPRESS';
 
-/** Escapa texto para exibição em HTML. */
+/* escapa o texto para exibição em HTML */
 function e($v): string
 {
     return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 }
 
-/**
- * Prefixo relativo até a raiz do projeto ('' na página inicial, '../' em pages/).
- * Calculado a partir da pasta do script em execução, então funciona em qualquer
- * subpasta do htdocs do XAMPP.
- */
 function base_path(): string
 {
     static $base = null;
@@ -33,14 +22,14 @@ function base_path(): string
     return $base = $rel === '' ? '' : str_repeat('../', substr_count($rel, '/') + 1);
 }
 
-/** Redireciona e encerra. Só funciona se nenhum HTML foi enviado antes. */
+/* redireciona e termina */
 function redirect(string $url)
 {
     header('Location: ' . $url);
     exit;
 }
 
-/* ---------- Mensagens (flash) ---------- */
+/* mensagens */
 function flash(string $type, string $msg): void
 {
     $_SESSION['flash'][] = ['type' => $type, 'msg' => $msg];
@@ -52,7 +41,7 @@ function flash_pull(): array
     return $f;
 }
 
-/* ---------- CSRF ---------- */
+/* csrf */
 function csrf_token(): string
 {
     if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(16));
@@ -62,7 +51,7 @@ function csrf_field(): string
 {
     return '<input type="hidden" name="csrf" value="' . e(csrf_token()) . '">';
 }
-/** Valida o token em requisições POST; em caso de falha, avisa e volta para a página. */
+
 function csrf_check(string $backTo): void
 {
     $ok = isset($_POST['csrf']) && hash_equals(csrf_token(), (string)$_POST['csrf']);
@@ -72,13 +61,13 @@ function csrf_check(string $backTo): void
     }
 }
 
-/* ---------- Entrada de dados ---------- */
+/* entrada de dados */
 function post_str(string $key, int $max = 255): string
 {
     $v = trim((string)($_POST[$key] ?? ''));
     return function_exists('mb_substr') ? mb_substr($v, 0, $max) : substr($v, 0, $max);
 }
-/** Converte "1.234,56" ou "12.5" em float; retorna null se inválido ou negativo. */
+/* converte número quebrado em float, retorna nulo se inválido ou negativo */
 function parse_decimal(string $v): ?float
 {
     $v = trim($v);
@@ -101,13 +90,13 @@ function fmt_money($v): string
     return 'R$ ' . number_format((float)$v, 2, ',', '.');
 }
 
-/** Status permitidos para um frete. */
+/* status do frete */
 function freight_statuses(): array
 {
     return ['Pendente', 'Em trânsito', 'Concluído'];
 }
 
-/** Linhas do relatório diário (tela e PDF usam a mesma consulta). */
+/* linhas do relatório diário */
 function fetch_report_rows(PDO $pdo, string $date): array
 {
     $st = $pdo->prepare(
