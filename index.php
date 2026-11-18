@@ -1,5 +1,4 @@
-<?php
-// index = painel inicial da app
+<?php // index = painel inicial da app
 require __DIR__ . '/config/database.php'; // banco de dados
 require __DIR__ . '/includes/functions.php'; // funções
 $cards = [

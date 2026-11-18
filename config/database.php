@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-// Conexão SQLite (PDO) e criação automática das tabelas.
-// O arquivo do banco é mantido (database/logistica.sqlite) para não perder dados já cadastrados.
+// SQLite (PDO) e criação automática das tabelas
+// arquivo do banco de dados = database/logistica.sqlite
 $dbDir = __DIR__ . '/../database';
 if (!is_dir($dbDir)) mkdir($dbDir, 0775, true);
 

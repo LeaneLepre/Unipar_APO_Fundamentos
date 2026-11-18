@@ -1,13 +1,12 @@
 <?php
-// Cabeçalho HTML. Deve ser incluído SOMENTE depois de config/database.php,
-// includes/functions.php e do processamento de formulários/redirecionamentos.
+// cabeçalho
 $base   = base_path();
 $active = basename($_SERVER['PHP_SELF']);
 $menu = [
     'index.php'      => ['Início',          'index.php'],
+    'products.php'   => ['Produtos',        'pages/products.php'],
     'addresses.php'  => ['Endereços',       'pages/addresses.php'],
     'carriers.php'   => ['Transportadores', 'pages/carriers.php'],
-    'products.php'   => ['Produtos',        'pages/products.php'],
     'freights.php'   => ['Fretes',          'pages/freights.php'],
     'report.php'     => ['Relatórios',      'pages/report.php'],
 ];
@@ -24,7 +23,7 @@ $menu = [
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark navbar-obsidian">
   <div class="container">
-    <a class="navbar-brand" href="<?= e($base) ?>index.php">
+    <a class="navbar-brand">
       <img src="<?= e($base) ?>assets/img/logo.png" alt="<?= e(APP_NAME) ?>" class="brand-logo">
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"
