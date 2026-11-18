@@ -19,11 +19,12 @@ Unipar EAD.
 - Relatório de fretes por dia com exportação em PDF.
 
 ### Organização Utilizada
-- config/: conexão e criação das tabelas.
-- includes/: cabeçalho, navegação e rodapé.
-- pages/: telas de cadastros, fretes e relatórios.
-- assets/css/ e assets/js/: estilos e scripts.
-- database/: banco de dados criado em tempo de execução.
+- assets/css/ - style.css e assets/js/ - app.js.
+- config/ - database.php.
+- includes/ - header.php e footer.php.
+- pages/ - products.php, addresses.php, carriers.php, freights.php e report.php.
+- index.php
+- database/
 
 ### Observações
 Como este é um exercício acadêmico, os campos CPF/CNPJ e CEP são armazenados sem validação de autenticidade.  
