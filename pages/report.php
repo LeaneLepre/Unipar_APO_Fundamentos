@@ -6,7 +6,7 @@ $date = (string)($_GET['date'] ?? date('Y-m-d'));
 if (!valid_date($date)) $date = date('Y-m-d');
 $rows = fetch_report_rows($pdo, $date);
 
-// Download em PDF: gerado antes de qualquer HTML, sem bibliotecas externas.
+// download em PDF
 if (isset($_GET['download'])) {
     require __DIR__ . '/../includes/SimplePdf.php';
     $pdf = build_daily_report_pdf($rows, $date, __DIR__ . '/../assets/img/logo_pdf.png');
@@ -22,7 +22,7 @@ if (isset($_GET['download'])) {
 $pageTitle = 'Relatórios';
 require __DIR__ . '/../includes/header.php';
 ?>
-<h1 class="h3 mb-3">Relatório diário de fretes</h1>
+<h1 class="h3 mb-3">Relatórios de Fretes</h1>
 <form class="row g-2 mb-3 align-items-end" method="get">
   <div class="col-auto"><label class="form-label" for="date">Data</label>
     <input type="date" id="date" name="date" value="<?= e($date) ?>" class="form-control"></div>
@@ -30,7 +30,6 @@ require __DIR__ . '/../includes/header.php';
   <div class="col-auto"><button name="download" value="1" class="btn btn-outline-success" type="submit">Baixar PDF</button></div>
 </form>
 <div class="card"><div class="card-body">
-  <p class="text-muted mb-3"><?= count($rows) ?> frete(s) em <?= e(fmt_date($date)) ?>.</p>
   <div class="table-responsive"><table class="table table-striped align-middle">
     <thead><tr><th>Nº</th><th>Data</th><th>Transportador</th><th>Origem</th><th>Destino</th><th>Produtos</th><th>Status</th></tr></thead>
     <tbody>

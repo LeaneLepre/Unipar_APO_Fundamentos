@@ -1,14 +1,14 @@
 :root,
 [data-bs-theme="dark"] {
-  --obs-bg: #101D3A;
-  --obs-text: #FFFFFF;
-  --obs-nav: #000000;
-  --obs-surface: #17264b;      /* cartões, um tom acima do fundo */
-  --obs-field: #0b1530;        /* campos de formulário */
-  --obs-line: #2c3f6e;
-  --obs-accent: #82B6F5;       /* azul do "EXPRESS" no logo */
-  --obs-btn: #2b5fb8;
-  --obs-btn-hover: #3a73d4;
+  --obs-bg: #101D3A; /* background */
+  --obs-text: #FFFFFF; /* texto */
+  --obs-nav: #000000; /* barra de navegação */
+  --obs-surface: #17264b; /* cartões */
+  --obs-field: #101D3A; /* campos de formulário */
+  --obs-line: #101D3A; /* linhas */
+  --obs-accent: #82B6F5; /* destaque */
+  --obs-btn: #2b5fb8; /* botões */
+  --obs-btn-hover: #3a73d4; /* qdo passa o mouse */
 
   --bs-body-bg: var(--obs-bg);
   --bs-body-color: var(--obs-text);
@@ -25,7 +25,7 @@ main { flex: 1 0 auto; }
 h1, h2, h3, h4, h5, h6, label, .form-label, th, td, p, li { color: var(--obs-text); }
 .text-muted, .form-text { color: rgba(255, 255, 255, .78) !important; }
 
-/* Barra superior */
+/* barra de navegação */
 .navbar-obsidian { background: var(--obs-nav) !important; border-bottom: 1px solid var(--obs-line); padding-top: .35rem; padding-bottom: .35rem; }
 .navbar-obsidian .navbar-brand { padding: 0; margin-right: 1.5rem; }
 .brand-logo { height: 52px; width: auto; display: block; border-radius: 6px; }
@@ -34,7 +34,7 @@ h1, h2, h3, h4, h5, h6, label, .form-label, th, td, p, li { color: var(--obs-tex
 .navbar-obsidian .nav-link.active { color: #FFFFFF; border-bottom-color: var(--obs-accent); font-weight: 600; }
 .navbar-obsidian .navbar-toggler { border-color: var(--obs-line); }
 
-/* Cartões, tabelas, formulários */
+/* cartões, tabelas, formulários */
 .card { background: var(--obs-surface); border: 1px solid var(--obs-line); border-radius: 12px; color: var(--obs-text); }
 .table { --bs-table-bg: transparent; --bs-table-color: #FFFFFF; --bs-table-striped-bg: rgba(255, 255, 255, .04);
          --bs-table-striped-color: #FFFFFF; --bs-table-border-color: var(--obs-line); --bs-table-hover-bg: rgba(130,182,245,.10); --bs-table-hover-color: #FFFFFF; }
@@ -45,7 +45,7 @@ h1, h2, h3, h4, h5, h6, label, .form-label, th, td, p, li { color: var(--obs-tex
 .form-select option { background: var(--obs-field); color: #FFFFFF; }
 input[type="date"] { color-scheme: dark; }
 
-/* Botões */
+/* botões */
 .btn { border-radius: 8px; }
 .btn-primary, .btn-success { --bs-btn-bg: var(--obs-btn); --bs-btn-border-color: var(--obs-btn); --bs-btn-color: #FFFFFF;
   --bs-btn-hover-bg: var(--obs-btn-hover); --bs-btn-hover-border-color: var(--obs-btn-hover); --bs-btn-hover-color: #FFFFFF;
@@ -55,14 +55,14 @@ input[type="date"] { color-scheme: dark; }
   --bs-btn-active-bg: var(--obs-accent); --bs-btn-active-color: #000000; }
 .btn-outline-secondary { --bs-btn-color: #FFFFFF; --bs-btn-border-color: var(--obs-line); --bs-btn-hover-bg: var(--obs-line); --bs-btn-hover-color: #FFFFFF; }
 
-/* Alertas legíveis sobre o fundo escuro */
+/* alertas */
 .alert { color: #FFFFFF; border-radius: 10px; }
 
-/* Produtos dinâmicos em fretes */
+/* produtos dinâmicos na página de fretes */
 .product-row .form-select { min-width: 0; }
 .stat-number { font-size: 2.4rem; font-weight: 600; line-height: 1.1; }
 
-/* Rodapé */
+/* rodapé */
 .site-footer { background: var(--obs-nav); border-top: 1px solid var(--obs-line); color: #FFFFFF; margin-top: 3rem; flex-shrink: 0; }
 
 @media (max-width: 575.98px) { .brand-logo { height: 42px; } }

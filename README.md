@@ -6,7 +6,7 @@ Unipar EAD.
 
 ### Tecnologias Utilizadas
 - PHP para backend
-- HTML5, CSS3 e JavaScript para frontend
+- HTML, CSS e JavaScript para frontend
 - Framework Bootstrap
 - Xampp e Apache para testes e desenvolvimento
 - SQLite através de PDO
@@ -19,13 +19,18 @@ Unipar EAD.
 - Relatório de fretes por dia com exportação em PDF.
 
 ### Organização Utilizada
-- assets/css/ - style.css e assets/js/ - app.js.
-- config/ - database.php.
-- includes/ - header.php e footer.php.
-- pages/ - products.php, addresses.php, carriers.php, freights.php e report.php.
+- assets/css/ - style.css
+- assets/img/ - logo.png e logo_pdf.png
+- assets/js/ - app.js
+- config/ - database.php
+- database/ - logistica.sqlite
+- includes/ - footer.php
+- includes/ - functions.php
+- includes/ - header.php
+- includes/ - SimplePdf.php
+- pages/ - addresses.php
+- pages/ - carriers.php
+- pages/ - freights.php
+- pages/ - products.php
+- pages/ - report.php
 - index.php
-- database/
-
-### Observações
-Como este é um exercício acadêmico, os campos CEP, CPF/CNPJ e telefone são armazenados sem validação de autenticidade.  
-Verifique se a extensão PDO_SQLite está habilitada no PHP para rodar o código.
