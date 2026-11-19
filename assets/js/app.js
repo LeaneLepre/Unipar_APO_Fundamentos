@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ---- Confirmação antes de excluir (formulários com data-confirm) ---- */
+  /* pede confirmação antes de excluir */
   document.querySelectorAll('form[data-confirm]').forEach(form => {
     form.addEventListener('submit', ev => {
       if (!window.confirm(form.dataset.confirm)) ev.preventDefault();
     });
   });
 
-  /* ---- Máscaras de CEP, CPF/CNPJ e telefone ---- */
+  /* sem validação de CEP, CPF/CNPJ e telefone */
   const masks = {
     cep: v => { v = v.replace(/\D/g, '').slice(0, 8); return v.length > 5 ? v.slice(0, 5) + '-' + v.slice(5) : v; },
     cpfcnpj: v => {
@@ -33,39 +33,19 @@ document.addEventListener('DOMContentLoaded', () => {
     input.value = fn(input.value);
   });
 
-  /* ---- Endereços: UF só com letras e preenchimento automático pelo CEP (ViaCEP) ---- */
+  /* estado só com letras */
   const addressForm = document.getElementById('address-form');
   if (addressForm) {
     const state = addressForm.querySelector('#state');
     state.addEventListener('input', () => { state.value = state.value.replace(/[^a-zA-Z]/g, '').toUpperCase(); });
-
-    const zip = addressForm.querySelector('#zip');
-    const status = document.getElementById('zip-status');
-    const original = status.textContent;
-    zip.addEventListener('input', async () => {
-      const digits = zip.value.replace(/\D/g, '');
-      if (digits.length !== 8) { status.textContent = original; return; }
-      status.textContent = 'Buscando CEP...';
-      try {
-        const res = await fetch('https://viacep.com.br/ws/' + digits + '/json/');
-        const d = await res.json();
-        if (d.erro) { status.textContent = 'CEP não encontrado. Preencha os campos manualmente.'; return; }
-        const set = (id, v) => { const el = addressForm.querySelector('#' + id); if (el && v) el.value = v; };
-        set('street', d.logradouro); set('city', d.localidade); set('state', d.uf);
-        status.textContent = 'Endereço preenchido pelo CEP. Confira e complete o número.';
-        addressForm.querySelector('#number').focus();
-      } catch (err) {
-        status.textContent = 'Não foi possível consultar o CEP agora. Preencha os campos manualmente.';
-      }
-    });
   }
 
-  /* ---- Fretes: status atualizado ao mudar o select ---- */
+  /* frete atualiza o status qdo muda o select */
   document.querySelectorAll('.status-form select').forEach(sel => {
     sel.addEventListener('change', () => sel.form.submit());
   });
 
-  /* ---- Fretes: produtos dinâmicos ---- */
+  /* frete com produtos dinâmicos */
   const freightForm = document.getElementById('freight-form');
   if (!freightForm) return;
 
@@ -82,21 +62,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const rows = rowsBox.querySelectorAll('.product-row');
     const chosen = selects().map(s => s.value).filter(Boolean);
 
-    // Não permite escolher o mesmo produto em duas linhas.
+    // não deixa escolher o mesmo produto para mais de 1 linha
     selects().forEach(sel => {
       [...sel.options].forEach(opt => {
         opt.disabled = opt.value !== '' && chosen.includes(opt.value) && opt.value !== sel.value;
       });
     });
 
-    // Mantém sempre ao menos uma linha.
+    // tem sempre pelo menos uma linha
     rows.forEach(r => { r.querySelector('.btn-remove-product').disabled = rows.length === 1; });
 
-    // Não há mais produtos para adicionar?
+    // evita linhas a mais ou repetidas
     const total = (selects()[0] ? selects()[0].options.length - 1 : 0);
     addBtn.disabled = rows.length >= total;
 
-    // Resumo: quantidade, peso total e valor total.
+    // faz o resumo dos produtos selecionados (quantidade, peso e valor total)
     let weight = 0, value = 0;
     selects().forEach(sel => {
       const o = sel.selectedOptions[0];
@@ -124,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   rowsBox.addEventListener('change', refresh);
 
-  // Origem e destino não podem ser o mesmo endereço.
+  // a origem e o destino não podem ser o mesmo endereço
   function syncAddresses() {
     [[origin, destination], [destination, origin]].forEach(([a, b]) => {
       [...a.options].forEach(o => { o.disabled = o.value !== '' && o.value === b.value; });
@@ -133,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
   origin.addEventListener('change', syncAddresses);
   destination.addEventListener('change', syncAddresses);
 
-  // Evita envio sem produto escolhido.
+  // evita enviar sem pelo menos 1 produto escolhido
   freightForm.addEventListener('submit', ev => {
     if (!selects().some(s => s.value)) {
       ev.preventDefault();

@@ -69,7 +69,7 @@ require __DIR__ . '/../includes/header.php';
       <input class="form-control" id="label" name="label" maxlength="80" value="<?= e($editing['label'] ?? '') ?>" required></div>
     <div class="col-md-6"><label class="form-label" for="zip">CEP</label>
       <input class="form-control" id="zip" name="zip" maxlength="9" inputmode="numeric" placeholder="00000-000" data-mask="cep" value="<?= e($editing['zip'] ?? '') ?>">
-      <div class="form-text" id="zip-status">Ao digitar o CEP completo, rua, cidade e estado são preenchidos automaticamente (se houver internet).</div></div>
+      <div class="form-text" id="zip-status"> Digite o CEP completo sem traço.</div></div>
     <div class="col-md-8"><label class="form-label" for="street">Rua *</label>
       <input class="form-control" id="street" name="street" maxlength="150" value="<?= e($editing['street'] ?? '') ?>" required></div>
     <div class="col-md-4"><label class="form-label" for="number">Número</label>

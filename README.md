@@ -27,5 +27,5 @@ Unipar EAD.
 - database/
 
 ### Observações
-Como este é um exercício acadêmico, os campos CPF/CNPJ e CEP são armazenados sem validação de autenticidade.  
-Verifique se a extensão PDO_SQLite está habilitada no PHP.
+Como este é um exercício acadêmico, os campos CEP, CPF/CNPJ e telefone são armazenados sem validação de autenticidade.  
+Verifique se a extensão PDO_SQLite está habilitada no PHP para rodar o código.
