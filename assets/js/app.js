@@ -40,11 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     state.addEventListener('input', () => { state.value = state.value.replace(/[^a-zA-Z]/g, '').toUpperCase(); });
   }
 
-  /* frete atualiza o status qdo muda o select */
-  document.querySelectorAll('.status-form select').forEach(sel => {
-    sel.addEventListener('change', () => sel.form.submit());
-  });
-
   /* frete com produtos dinâmicos */
   const freightForm = document.getElementById('freight-form');
   if (!freightForm) return;

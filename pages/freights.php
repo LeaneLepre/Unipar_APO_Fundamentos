@@ -4,36 +4,26 @@ require __DIR__ . '/../includes/functions.php';
 
 $self = 'freights.php';
 $errors = [];
-$old = null;   // valores enviados, reaproveitados se houver erro de validação
+$old = null;   
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check($self);
     $action = $_POST['action'] ?? 'create';
 
     if ($action === 'delete') {
-        // freight_products é removido em cascata (ON DELETE CASCADE).
         $pdo->prepare('DELETE FROM freights WHERE id=?')->execute([(int)($_POST['id'] ?? 0)]);
         flash('success', 'Frete excluído.');
         redirect($self);
     }
 
-    if ($action === 'status') {
-        $status = $_POST['status'] ?? '';
-        if (in_array($status, freight_statuses(), true)) {
-            $pdo->prepare('UPDATE freights SET status=? WHERE id=?')->execute([$status, (int)($_POST['id'] ?? 0)]);
-            flash('success', 'Status do frete atualizado.');
-        }
-        redirect($self);
-    }
-
-    // action === 'create'
+    // action = create
     $old = [
         'carrier_id'     => (int)($_POST['carrier_id'] ?? 0),
         'origin_id'      => (int)($_POST['origin_id'] ?? 0),
         'destination_id' => (int)($_POST['destination_id'] ?? 0),
         'freight_date'   => (string)($_POST['freight_date'] ?? ''),
         'status'         => (string)($_POST['status'] ?? 'Pendente'),
-        // remove vazios e duplicados (PRIMARY KEY composta não aceita o mesmo produto duas vezes)
+        // remove produtos vazios e duplicados
         'products'       => array_values(array_unique(array_filter(array_map('intval', (array)($_POST['products'] ?? [])), fn($v) => $v > 0))),
     ];
     $exists = function (string $table, int $id) use ($pdo): bool {
@@ -85,7 +75,7 @@ $rows = $pdo->query(
 
 $val = fn(string $k, $default = '') => $old[$k] ?? $default;
 $selectedProducts = $old['products'] ?? [];
-if (!$selectedProducts) $selectedProducts = [0];   // uma linha vazia inicial
+if (!$selectedProducts) $selectedProducts = [0];   
 $ready = $carriers && $addresses && $products;
 
 $productOptions = function (int $selected) use ($products): string {
@@ -100,16 +90,14 @@ $productOptions = function (int $selected) use ($products): string {
 $pageTitle = 'Fretes';
 require __DIR__ . '/../includes/header.php';
 ?>
-<h1 class="h3 mb-3">Gerenciamento de fretes</h1>
+<h1 class="h3 mb-3">Gerenciamento de Fretes</h1>
 
 <div class="card mb-4"><div class="card-body">
-  <h2 class="h5">Gerar novo frete</h2>
+  <h2 class="h5">Novo frete</h2>
   <?php if ($errors): ?><div class="alert alert-danger"><ul class="mb-0"><?php foreach ($errors as $m): ?><li><?= e($m) ?></li><?php endforeach ?></ul></div><?php endif ?>
 
   <?php if (!$ready): ?>
-    <div class="alert alert-warning mb-0">Para gerar um frete, cadastre antes pelo menos um
-      <a href="products.php">produto</a>, um <a href="carriers.php">transportador</a> e
-      <a href="addresses.php">endereços</a> (origem e destino).</div>
+    <p>Para gerar um frete, cadastre produtos, transportadores e endereços.</p>
   <?php else: ?>
   <form method="post" class="row g-3" id="freight-form">
     <?= csrf_field() ?>
@@ -118,7 +106,7 @@ require __DIR__ . '/../includes/header.php';
       <select required id="carrier_id" name="carrier_id" class="form-select"><option value="">Selecione</option>
         <?php foreach ($carriers as $c): ?><option value="<?= (int)$c['id'] ?>" <?= (int)$val('carrier_id', 0) === (int)$c['id'] ? 'selected' : '' ?>><?= e($c['name']) ?></option><?php endforeach ?>
       </select></div>
-    <div class="col-md-3"><label class="form-label" for="freight_date">Data do frete *</label>
+    <div class="col-md-3"><label class="form-label" for="freight_date">Data *</label>
       <input required type="date" id="freight_date" name="freight_date" class="form-control" value="<?= e($val('freight_date', date('Y-m-d'))) ?>"></div>
     <div class="col-md-3"><label class="form-label" for="status">Status</label>
       <select name="status" id="status" class="form-select">
@@ -134,7 +122,7 @@ require __DIR__ . '/../includes/header.php';
       </select></div>
 
     <div class="col-12">
-      <label class="form-label">Produtos do frete *</label>
+      <label class="form-label">Produtos *</label>
       <div id="product-rows" class="d-grid gap-2">
         <?php foreach ($selectedProducts as $sel): ?>
           <div class="input-group product-row">
@@ -154,33 +142,27 @@ require __DIR__ . '/../includes/header.php';
         <span class="small" id="freight-summary" aria-live="polite"></span>
       </div>
     </div>
-    <div class="col-12"><button class="btn btn-success" type="submit">Gerar frete</button></div>
+    <div class="col-12"><button class="btn btn-success" type="submit">Gerar Frete</button></div>
   </form>
   <?php endif ?>
 </div></div>
 
 <div class="card"><div class="card-body">
-  <h2 class="h5">Fretes registrados</h2>
+  <h2 class="h5">Fretes gerados</h2>
   <div class="table-responsive"><table class="table table-striped align-middle">
-    <thead><tr><th>Nº</th><th>Data</th><th>Transportador</th><th>Origem</th><th>Destino</th><th>Produtos</th><th>Status</th><th class="text-end">Ações</th></tr></thead>
+    <thead><tr><th>Nº</th><th>Data</th><th>Transportador</th><th>Origem</th><th>Destino</th><th>Produtos</th><th>Status</th><th class="text-end">Opções</th></tr></thead>
     <tbody>
     <?php foreach ($rows as $r): ?>
       <tr><td><?= (int)$r['id'] ?></td><td><?= e(fmt_date($r['freight_date'])) ?></td><td><?= e($r['carrier']) ?></td>
         <td><?= e($r['origin']) ?></td><td><?= e($r['destination']) ?></td><td><?= e($r['products'] ?? '-') ?></td>
-        <td><form method="post" class="status-form">
-              <?= csrf_field() ?><input type="hidden" name="action" value="status"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-              <select name="status" class="form-select form-select-sm" aria-label="Status do frete <?= (int)$r['id'] ?>">
-                <?php foreach (freight_statuses() as $s): ?><option <?= $r['status'] === $s ? 'selected' : '' ?>><?= e($s) ?></option><?php endforeach ?>
-              </select>
-              <noscript><button class="btn btn-sm btn-outline-primary mt-1" type="submit">Salvar</button></noscript>
-            </form></td>
+        <td><?= e($r['status']) ?></td>
         <td class="text-end text-nowrap">
-          <a class="btn btn-sm btn-outline-primary" href="report.php?date=<?= e($r['freight_date']) ?>">Relatório do dia</a>
-          <form method="post" class="d-inline" data-confirm="Excluir este frete?">
+          <a class="btn btn-sm btn-outline-primary" href="report.php?date=<?= e($r['freight_date']) ?>">Relatório</a>
+          <form method="post" class="d-inline" data-confirm="Excluir este frete">
             <?= csrf_field() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
             <button class="btn btn-sm btn-outline-danger" type="submit">Excluir</button></form></td></tr>
     <?php endforeach ?>
-    <?php if (!$rows): ?><tr><td colspan="8" class="text-center text-muted">Nenhum frete gerado ainda.</td></tr><?php endif ?>
+    <?php if (!$rows): ?><tr><td colspan="8" class="text-center text-muted">Nenhum frete gerado.</td></tr><?php endif ?>
     </tbody></table></div>
 </div></div>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

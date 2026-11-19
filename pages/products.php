@@ -2,7 +2,6 @@
 require __DIR__ . '/../config/database.php';
 require __DIR__ . '/../includes/functions.php';
 
-// 1) Processa formulários ANTES de qualquer HTML (header.php), para o redirect funcionar.
 $self = 'products.php';
 $errors = [];
 $form = null;
@@ -16,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $st = $pdo->prepare('SELECT COUNT(*) FROM freight_products WHERE product_id=?');
         $st->execute([$id]);
         if ((int)$st->fetchColumn() > 0) {
-            flash('warning', 'Este produto está em um ou mais fretes e não pode ser excluído.');
+            flash('warning', 'Este produto está em um frete e não pode ser excluído.');
         } else {
             $pdo->prepare('DELETE FROM products WHERE id=?')->execute([$id]);
             flash('success', 'Produto excluído.');
@@ -59,11 +58,10 @@ if ($editing === null && isset($_GET['edit'])) {
 }
 $rows = $pdo->query('SELECT * FROM products ORDER BY id DESC')->fetchAll();
 
-// 2) Só agora o HTML começa.
 $pageTitle = 'Produtos';
 require __DIR__ . '/../includes/header.php';
 ?>
-<h1 class="h3 mb-3">Cadastro de produtos</h1>
+<h1 class="h3 mb-3">Cadastro de Produtos</h1>
 
 <div class="card mb-4"><div class="card-body">
   <h2 class="h5"><?= !empty($editing['id']) ? 'Editar produto' : 'Novo produto' ?></h2>
@@ -83,7 +81,7 @@ require __DIR__ . '/../includes/header.php';
     <div class="col-md-6"><label class="form-label" for="value">Valor (R$)</label>
       <input class="form-control" id="value" name="value" type="number" step="0.01" min="0" value="<?= e($editing['value'] ?? '') ?>"></div>
     <div class="col-12">
-      <button class="btn btn-success" type="submit">Salvar produto</button>
+      <button class="btn btn-success" type="submit">Salvar</button>
       <?php if (!empty($editing['id'])): ?><a class="btn btn-outline-secondary" href="<?= e($self) ?>">Cancelar</a><?php endif ?>
     </div>
   </form>
@@ -92,14 +90,14 @@ require __DIR__ . '/../includes/header.php';
 <div class="card"><div class="card-body">
   <h2 class="h5">Produtos cadastrados</h2>
   <div class="table-responsive"><table class="table table-striped align-middle">
-    <thead><tr><th>Código</th><th>Nome</th><th>Descrição</th><th>Peso (kg)</th><th>Valor</th><th class="text-end">Ações</th></tr></thead>
+    <thead><tr><th>Código</th><th>Nome</th><th>Descrição</th><th>Peso (kg)</th><th>Valor (R$)</th><th class="text-end">Opções</th></tr></thead>
     <tbody>
     <?php foreach ($rows as $r): ?>
       <tr><td><?= e($r['code']) ?></td><td><?= e($r['name']) ?></td><td><?= e($r['description']) ?></td>
         <td><?= e(number_format((float)$r['weight'], 2, ',', '.')) ?></td><td><?= e(fmt_money($r['value'])) ?></td>
         <td class="text-end text-nowrap">
           <a class="btn btn-sm btn-outline-primary" href="?edit=<?= (int)$r['id'] ?>">Editar</a>
-          <form method="post" class="d-inline" data-confirm="Excluir este produto?">
+          <form method="post" class="d-inline" data-confirm="Excluir este produto">
             <?= csrf_field() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
             <button class="btn btn-sm btn-outline-danger" type="submit">Excluir</button></form></td></tr>
     <?php endforeach ?>

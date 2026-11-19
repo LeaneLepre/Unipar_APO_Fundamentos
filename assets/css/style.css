@@ -66,6 +66,3 @@ input[type="date"] { color-scheme: dark; }
 .site-footer { background: var(--obs-nav); border-top: 1px solid var(--obs-line); color: #FFFFFF; margin-top: 3rem; flex-shrink: 0; }
 
 @media (max-width: 575.98px) { .brand-logo { height: 42px; } }
-
-/* Seletor de status na tabela de fretes */
-.status-form select { min-width: 8.5rem; }

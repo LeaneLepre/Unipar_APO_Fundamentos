@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $st = $pdo->prepare('SELECT COUNT(*) FROM freights WHERE origin_id=? OR destination_id=?');
         $st->execute([$id, $id]);
         if ((int)$st->fetchColumn() > 0) {
-            flash('warning', 'Este endereço é origem ou destino de algum frete e não pode ser excluído.');
+            flash('warning', 'Este endereço consta em algum frete e não pode ser excluído.');
         } else {
             $pdo->prepare('DELETE FROM addresses WHERE id=?')->execute([$id]);
             flash('success', 'Endereço excluído.');
@@ -26,11 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $form = ['id' => $id, 'label' => post_str('label', 80), 'zip' => post_str('zip', 9), 'street' => post_str('street', 150),
              'number' => post_str('number', 15), 'city' => post_str('city', 80),
              'state' => strtoupper(post_str('state', 2)), 'complement' => post_str('complement', 100)];
-    if ($form['label'] === '')  $errors[] = 'Informe a identificação do endereço (ex.: Matriz, Cliente X).';
+    if ($form['label'] === '')  $errors[] = 'Informe a identificação do endereço (ex: Empresa X, Cliente Y).';
     if ($form['street'] === '') $errors[] = 'Informe a rua.';
     if ($form['city'] === '')   $errors[] = 'Informe a cidade.';
-    if (!preg_match('/^[A-Z]{2}$/', $form['state'])) $errors[] = 'Informe o estado com 2 letras (ex.: PR).';
-    if ($form['zip'] !== '' && !preg_match('/^\d{5}-?\d{3}$/', $form['zip'])) $errors[] = 'CEP deve ter 8 dígitos (ex.: 80000-000).';
+    if (!preg_match('/^[A-Z]{2}$/', $form['state'])) $errors[] = 'Informe o estado com 2 letras (ex: PR, SP).';
+    if ($form['zip'] !== '' && !preg_match('/^\d{5}-?\d{3}$/', $form['zip'])) $errors[] = 'OCEP deve ter 8 dígitos (ex: 00000-000).';
     if (!$errors) {
         $data = [$form['label'], $form['zip'], $form['street'], $form['number'], $form['city'], $form['state'], $form['complement']];
         if ($id) {
@@ -56,7 +56,7 @@ $rows = $pdo->query('SELECT * FROM addresses ORDER BY id DESC')->fetchAll();
 $pageTitle = 'Endereços';
 require __DIR__ . '/../includes/header.php';
 ?>
-<h1 class="h3 mb-3">Cadastro de endereços</h1>
+<h1 class="h3 mb-3">Cadastro de Endereços</h1>
 
 <div class="card mb-4"><div class="card-body">
   <h2 class="h5"><?= !empty($editing['id']) ? 'Editar endereço' : 'Novo endereço' ?></h2>
@@ -67,21 +67,20 @@ require __DIR__ . '/../includes/header.php';
     <input type="hidden" name="id" value="<?= e($editing['id'] ?? 0) ?>">
     <div class="col-md-6"><label class="form-label" for="label">Identificação (origem/destino) *</label>
       <input class="form-control" id="label" name="label" maxlength="80" value="<?= e($editing['label'] ?? '') ?>" required></div>
-    <div class="col-md-6"><label class="form-label" for="zip">CEP</label>
-      <input class="form-control" id="zip" name="zip" maxlength="9" inputmode="numeric" placeholder="00000-000" data-mask="cep" value="<?= e($editing['zip'] ?? '') ?>">
-      <div class="form-text" id="zip-status"> Digite o CEP completo sem traço.</div></div>
-    <div class="col-md-8"><label class="form-label" for="street">Rua *</label>
+    <div class="col-md-6"><label class="form-label" for="zip">CEP *</label>
+      <input class="form-control" id="zip" name="zip" maxlength="9" inputmode="numeric" placeholder="00000-000" data-mask="cep" value="<?= e($editing['zip'] ?? '') ?>" required></div>
+    <div class="col-md-8"><label class="form-label" for="street">Logradouro *</label>
       <input class="form-control" id="street" name="street" maxlength="150" value="<?= e($editing['street'] ?? '') ?>" required></div>
-    <div class="col-md-4"><label class="form-label" for="number">Número</label>
-      <input class="form-control" id="number" name="number" maxlength="15" value="<?= e($editing['number'] ?? '') ?>"></div>
+    <div class="col-md-4"><label class="form-label" for="number">Número *</label>
+      <input class="form-control" id="number" name="number" maxlength="15" value="<?= e($editing['number'] ?? '') ?>" required></div>
     <div class="col-md-6"><label class="form-label" for="city">Cidade *</label>
       <input class="form-control" id="city" name="city" maxlength="80" value="<?= e($editing['city'] ?? '') ?>" required></div>
-    <div class="col-md-2"><label class="form-label" for="state">Estado *</label>
+    <div class="col-md-2"><label class="form-label" for="state">Estado (UF)*</label>
       <input class="form-control text-uppercase" id="state" name="state" maxlength="2" placeholder="PR" value="<?= e($editing['state'] ?? '') ?>" required></div>
     <div class="col-md-4"><label class="form-label" for="complement">Complemento</label>
       <input class="form-control" id="complement" name="complement" maxlength="100" value="<?= e($editing['complement'] ?? '') ?>"></div>
     <div class="col-12">
-      <button class="btn btn-success" type="submit">Salvar endereço</button>
+      <button class="btn btn-success" type="submit">Salvar</button>
       <?php if (!empty($editing['id'])): ?><a class="btn btn-outline-secondary" href="<?= e($self) ?>">Cancelar</a><?php endif ?>
     </div>
   </form>
@@ -90,7 +89,7 @@ require __DIR__ . '/../includes/header.php';
 <div class="card"><div class="card-body">
   <h2 class="h5">Endereços cadastrados</h2>
   <div class="table-responsive"><table class="table table-striped align-middle">
-    <thead><tr><th>Identificação</th><th>CEP</th><th>Rua</th><th>Nº</th><th>Cidade</th><th>UF</th><th>Complemento</th><th class="text-end">Ações</th></tr></thead>
+    <thead><tr><th>Identificação</th><th>CEP</th><th>Logradouro</th><th>Nº</th><th>Cidade</th><th>UF</th><th>Complemento</th><th class="text-end">Opções</th></tr></thead>
     <tbody>
     <?php foreach ($rows as $r): ?>
       <tr><td><?= e($r['label']) ?></td><td><?= e($r['zip']) ?></td><td><?= e($r['street']) ?></td><td><?= e($r['number']) ?></td>

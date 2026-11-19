@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              'phone' => post_str('phone', 20), 'email' => post_str('email', 120)];
     if ($form['name'] === '') $errors[] = 'Informe o nome do transportador.';
     $digits = preg_replace('/\D/', '', $form['document']);
-    if ($form['document'] !== '' && !in_array(strlen($digits), [11, 14], true)) $errors[] = 'CPF/CNPJ deve ter 11 ou 14 dígitos (a autenticidade não é verificada).';
+    if ($form['document'] !== '' && !in_array(strlen($digits), [11, 14], true)) $errors[] = 'CPF/CNPJ deve ter 11 ou 14 dígitos.';
     if ($form['email'] !== '' && !filter_var($form['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'E-mail inválido.';
     if (!$errors) {
         $data = [$form['name'], $form['document'], $form['phone'], $form['email']];
@@ -54,7 +54,7 @@ $rows = $pdo->query('SELECT * FROM carriers ORDER BY id DESC')->fetchAll();
 $pageTitle = 'Transportadores';
 require __DIR__ . '/../includes/header.php';
 ?>
-<h1 class="h3 mb-3">Cadastro de transportadores</h1>
+<h1 class="h3 mb-3">Cadastro de Transportadores</h1>
 
 <div class="card mb-4"><div class="card-body">
   <h2 class="h5"><?= !empty($editing['id']) ? 'Editar transportador' : 'Novo transportador' ?></h2>
@@ -63,16 +63,16 @@ require __DIR__ . '/../includes/header.php';
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="save">
     <input type="hidden" name="id" value="<?= e($editing['id'] ?? 0) ?>">
-    <div class="col-md-6"><label class="form-label" for="name">Nome *</label>
+    <div class="col-md-6"><label class="form-label" for="name">Nome Completo *</label>
       <input class="form-control" id="name" name="name" maxlength="120" value="<?= e($editing['name'] ?? '') ?>" required></div>
-    <div class="col-md-6"><label class="form-label" for="document">CPF/CNPJ</label>
-      <input class="form-control" id="document" name="document" maxlength="18" inputmode="numeric" data-mask="cpfcnpj" value="<?= e($editing['document'] ?? '') ?>"></div>
+    <div class="col-md-6"><label class="form-label" for="document">CPF / CNPJ *</label>
+      <input class="form-control" id="document" name="document" maxlength="18" inputmode="numeric" data-mask="cpfcnpj" value="<?= e($editing['document'] ?? '') ?>" required></div>
     <div class="col-md-6"><label class="form-label" for="phone">Telefone</label>
       <input class="form-control" id="phone" name="phone" type="tel" maxlength="15" placeholder="(00) 00000-0000" data-mask="phone" value="<?= e($editing['phone'] ?? '') ?>"></div>
     <div class="col-md-6"><label class="form-label" for="email">E-mail</label>
       <input class="form-control" id="email" name="email" type="email" maxlength="120" value="<?= e($editing['email'] ?? '') ?>"></div>
     <div class="col-12">
-      <button class="btn btn-success" type="submit">Salvar transportador</button>
+      <button class="btn btn-success" type="submit">Salvar</button>
       <?php if (!empty($editing['id'])): ?><a class="btn btn-outline-secondary" href="<?= e($self) ?>">Cancelar</a><?php endif ?>
     </div>
   </form>
@@ -81,7 +81,7 @@ require __DIR__ . '/../includes/header.php';
 <div class="card"><div class="card-body">
   <h2 class="h5">Transportadores cadastrados</h2>
   <div class="table-responsive"><table class="table table-striped align-middle">
-    <thead><tr><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>E-mail</th><th class="text-end">Ações</th></tr></thead>
+    <thead><tr><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>E-mail</th><th class="text-end">Opções</th></tr></thead>
     <tbody>
     <?php foreach ($rows as $r): ?>
       <tr><td><?= e($r['name']) ?></td><td><?= e($r['document']) ?></td><td><?= e($r['phone']) ?></td><td><?= e($r['email']) ?></td>
